@@ -171,22 +171,9 @@ ul li{
 background-color: green;
 }
 
-#logout_button{
-background-color: red;
-}
-
 .rowtext{
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
 }
-
-{% if user.is_superuser %}
-.rowtext:hover {
-    background: #fff;
-    white-space: normal;
-    z-index: 2;
-    position: absolute;
-}
-{% endif %}
