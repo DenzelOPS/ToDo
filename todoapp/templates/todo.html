@@ -2,6 +2,9 @@
 {% load static %}
 <head>
 <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+{% if user.is_superuser %}
+<link rel="stylesheet" href="{% static 'css/stylesadmin.css' %}">
+{% endif %}
 <script src="{% static 'scripts/scripts.js' %}"></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
