@@ -21,6 +21,7 @@ def todolist(request):
                     )
                 todo.save()
                 message='Added successfully'
+                return redirect('/')
             else:
                 message='Invalid form'
         elif "login" in request.POST: #Аутентификация если есть login
