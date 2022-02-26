@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+{% load static %}
+<head>
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+<script src="{% static 'scripts/scripts.js' %}"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>ToDo</title>
+</head>
+
+<body>
+
+<div id="row1">
+    <div id="column1"><h3 class="fcf-h3">Add new task</h3>
+
+    <form id="fcf-form-id" class="fcf-form-class" method="post" action="">
+        {% csrf_token %}
+        <div class="fcf-form-group">
+            <label for="Name" class="fcf-label">Name</label>
+            <div class="fcf-input-group">
+                <input type="text" id="name" name="name" class="fcf-form-control" required>
+            </div>
+        </div>
+        
+        <div class="fcf-form-group">
+            <label for="Status" class="fcf-label">Status(1-5)</label>
+            <div class="fcf-input-group">
+                <input type="number" id="status" min="1" max="5" name="status" class="fcf-form-control" required>
+            </div>
+        </div>
+        
+        <div class="fcf-form-group">
+            <label for="Email" class="fcf-label">Email</label>
+            <div class="fcf-input-group">
+                <input type="email" id="email" name="email" class="fcf-form-control" required>
+            </div>
+        </div>
+
+        <div class="fcf-form-group">
+            <label for="Message" class="fcf-label">Text</label>
+            <div class="fcf-input-group">
+                <textarea id="text" name="text" class="fcf-form-control" rows="6" maxlength="3000" required></textarea>
+            </div>
+        </div>
+
+        <div class="fcf-form-group">
+            <button type="submit" name="Add" id="fcf-button" class="fcf-btn fcf-btn-primary fcf-btn-lg fcf-btn-block">Add</button>
+        </div>
+        </form>
+        <h3 class="fcf-h3">{{ message }}</h3>
+        {% if user.is_authenticated %}
+            <form method="post" action="" onsubmit="setTimeout(function(){window.location.reload();},10);">
+            {% csrf_token %}
+            <button type="hidden" value="{{ csrf_token }}" name="logout" id="logout_button" onclick="Logout()" class="fcf-btn fcf-btn-primary fcf-btn-lg fcf-btn-block">Logout</button>
+            </form>
+        {% else %}
+        <form id="fcf-form-id" class="fcf-form-class" method="post" action="">
+        {% csrf_token %}
+        
+        
+        <div class="fcf-form-group">
+            <label for="Login" class="fcf-label">Login</label>
+            <div class="fcf-input-group">
+                <input type="text" id="Login" name="Login" class="fcf-form-control" required>
+            </div>
+        </div>
+
+        <div class="fcf-form-group">
+            <label for="Password" class="fcf-label">Password</label>
+            <div class="fcf-input-group">
+                <input type="password" id="Password" name="Password" class="fcf-form-control" required>
+            </div>
+        </div>
+        <div class="fcf-form-group">
+            <button type="submit" name="login" id="login_button" class="fcf-btn fcf-btn-primary fcf-btn-lg fcf-btn-block">Login</button>
+        </div>
+        
+        </form>
+        {% endif %}
+        </div>
+        
+    <div id="column2">
+    <h3 class="fcf-h3">ToDo list</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Text</th>
+          <th>Status</th>
+          <th>Done</th>
+          {% if user.is_superuser %}
+          <th></th>
+          {% endif %}
+        </tr>
+      </thead>
+    <tbody>
+    {% for todo in todos %}
+      <tr>
+        <td class="row">{{ todo.name }}</td>
+        <td class="row">{{ todo.email }}</td>
+        <td class="rowtext" id="text_{{todo.id}}" {% if user.is_superuser %} contenteditable='true' {% endif %}>{{ todo.text }}</td>
+        <td>{{ todo.status }}</td>
+        <td>{{ todo.done }} {% if todo.byadmin %} &#10003; {% endif %}</td>
+        {% if user.is_superuser %}
+        <td class="row"><input type="checkbox" class=" checkbox" name="checkedbox" value="{{ todo.id }}" onclick="MarkAsDone(this.value)"><input type="button" id="{{todo.id}}" value="Save" onclick="SaveText(this.id)"></td>
+        {% endif %}
+      </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+    
+    {% if todos.has_other_pages %}
+      <ul class="pagination">
+        {% if todos.has_previous %}
+          <li><a href="?page={{ todos.previous_page_number }}">&laquo;</a></li>
+        {% else %}
+          <li class="disabled"><span>&laquo;</span></li>
+        {% endif %}
+        {% for i in todos.paginator.page_range %}
+          {% if todos.number == i %}
+            <li class="active"><span>{{ i }}</span></li>
+          {% else %}
+            <li><a href="?page={{ i }}">{{ i }}</a></li>
+          {% endif %}
+        {% endfor %}
+        {% if todos.has_next %}
+          <li><a href="?page={{ todos.next_page_number }}">&raquo;</a></li>
+        {% else %}
+          <li class="disabled"><span>&raquo;</span></li>
+        {% endif %}
+      </ul>
+    {% endif %}
+    <div class="fcf-form-group">
+       <button type="submit" name="ASCByName" id="fcf-button" onclick="SaveOrder(0)" class="fcf-btn fcf-btn-primary fcf-btn-lg fcf-btn-block">Sort by name(ascending)</button>
+    </div>
+    <div class="fcf-form-group">
+       <button type="submit" name="DESByName" id="fcf-button" onclick="SaveOrder(1)" class="fcf-btn fcf-btn-primary fcf-btn-lg fcf-btn-block">Sort by name(descending)</button>
+    </div>
+    <div class="fcf-form-group">
+       <button type="submit" name="ASCByEmail" id="fcf-button" onclick="SaveOrder(2)" class="fcf-btn fcf-btn-primary fcf-btn-lg fcf-btn-block">Sort by email(ascending)</button>
+    </div>
+    <div class="fcf-form-group">
+       <button type="submit" name="DESByEmail" id="fcf-button" onclick="SaveOrder(3)" class="fcf-btn fcf-btn-primary fcf-btn-lg fcf-btn-block">Sort by email(descending)</button>
+    </div>
+    <div class="fcf-form-group">
+       <button type="submit" name="ASCByStatus" id="fcf-button" onclick="SaveOrder(4)" class="fcf-btn fcf-btn-primary fcf-btn-lg fcf-btn-block">Sort by status(ascending)</button>
+    </div>
+    <div class="fcf-form-group">
+       <button type="submit" name="DESByStatus" id="fcf-button" onclick="SaveOrder(5)" class="fcf-btn fcf-btn-primary fcf-btn-lg fcf-btn-block">Sort by status(descending)</button>
+    </div>
+   </div>
+</div>
+</body>
+</html>
